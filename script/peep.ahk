@@ -34,16 +34,19 @@
 ;                           ; }                                                                     ;
 ;___________________________________________________________________________________________________;
 ; display_text [num]        ; Disables displaying text or sets display type                         ;
-;       Examples          0 ; Disables displaying text (text is still returned)                     ;
+;       Examples:         0 ; Disables displaying text (text is still returned)                     ;
 ;                         1 ; Use the custom-built GUI to display the text                          ;
 ;                        -1 ; Use the default MsgBox() function                                     ;
+;___________________________________________________________________________________________________;
+; add_string_quotes [bool]  ; If true, string primitives have quotation marks around them.          ;
+;       Examples:      true ; "Some string"                                                         ;
+;                     false ; Some string                                                           ;
 ;___________________________________________________________________________________________________;
 ; gui_pause_code [bool]     ; If true, code flow pauses when custom GUI shows (similar to MsgBox()) ;
 ;___________________________________________________________________________________________________;
 ; include_properties [bool] ; If true, includes the built-in properties of the object               ;
 ;___________________________________________________________________________________________________;
 ; default_gui_btn [str]     ; Set the default button when the custom GUI is used                    ;
-;                                                                                                   ;
 ;___________________________________________________________________________________________________;
 ; array_values_inline [bool]; If true, array values are written inline with no index and object     ;
 ;                           ; properties are omitted.                                               ;
@@ -53,6 +56,8 @@
 ;                           ;     1: a                                                              ;
 ;                           ;     2: b                                                              ;
 ;                           ; ]                                                                     ;
+;___________________________________________________________________________________________________;
+; disable_escape [bool]     ; If true, disables the "escape closes custom gui" hotkey               ;
 ;___________________________________________________________________________________________________;
 ;=====  REMARKS  ===================================================================================;
 ; The "Resume Code" button on the custom GUI unpauses the script but keeps the GUI up.              ;
@@ -72,13 +77,15 @@ class Peep
     
     ; ===== Custom Properties =====
     static ind_type             := '    '
+    static default_gui_btn      := "close"
     static include_prim_type    := 0
     static display_text         := 1
     static key_val_inline       := 1
     static gui_pause_code       := 1
     static include_properties   := 1
     static array_values_inline  := 0
-    static default_gui_btn      := "close"
+    static add_string_quotes    := 1
+    static disable_escape       := 0
     
     _is_enumerable      := {array:1, map:1, gui:1, regexmatchinfo:1}
     _is_prim            := {float:1, integer:1, number:1, string:1, unset:1}
@@ -99,15 +106,54 @@ class Peep
                ,menu          :["ClickCount", "Default", "Handle"]
                ,regexmatchinfo:["Pos", "Len", "Count", "Mark"] }
     
-    user_settings() {
-        str := ""
-        for k, v in Peep.OwnProps()
-            if (k != "Prototype")
-                this._%k% := v
+    ind_type {
+        get => (this.HasOwnProp("_ind_type")) ? this._ind_type : Peep.ind_type
+        set => (StrLen(value) > 0 ? this._ind_type := value : "    ")
     }
     
+    include_prim_type {
+        get => (this.HasOwnProp("_include_prim_type")) ? this._include_prim_type : Peep.include_prim_type
+        set => this._include_prim_type := (value) ? 1 : 0
+    }
+    
+    display_text {
+        get => (this.HasOwnProp("_display_text")) ? this._display_text : Peep.display_text
+        set => this._display_text := (value > 0) ? 1 : (value = 0) ? 0 : -1
+    }
+    
+    key_val_inline {
+        get => (this.HasOwnProp("_key_val_inline")) ? this._key_val_inline : Peep.key_val_inline
+        set => this._key_val_inline := (value) ? 1 : 0
+    }
+    
+    gui_pause_code {
+        get => (this.HasOwnProp("_gui_pause_code")) ? this._gui_pause_code : Peep.gui_pause_code
+        set => this.gui_pause_code := (value) ? 1 : 0
+    }
+    
+    include_properties {
+        get => (this.HasOwnProp("_include_properties")) ? this._include_properties : Peep.include_properties
+        set => this._include_properties := (value) ? 1 : 0
+    }
+    
+    array_values_inline {
+        get => (this.HasOwnProp("_array_values_inline")) ? this._array_values_inline : Peep.array_values_inline
+        set => this._array_values_inline := (value) ? 1 : 0
+    }
+    
+    add_string_quotes {
+        get => (this.HasOwnProp("_add_string_quotes")) ? this._add_string_quotes : Peep.add_string_quotes
+        set => this._add_string_quotes := (value) ? 1 : 0
+    }
+    
+    default_gui_btn {
+        get => (this.HasOwnProp("_default_gui_btn")) ? this._default_gui_btn : Peep.default_gui_btn
+        set => this._default_gui_btn := InStr(value, "clip") ? "clipboard"
+                                      : InStr(value, "res") ? "resume" : "close"
+    }
+    
+    
     __New(item, opt:="") {
-        this.user_settings()
         this.inda := ["", Peep.ind_type]
         if IsSet(item)
             return this.__Call(item, opt)
@@ -137,8 +183,9 @@ class Peep
     }
     
     primitive(prim, _type) {
-        return (_type = "unset")      ? ";;UNSET"
-            : (prim = "")             ? ";;EMPTY_STR"
+        (_type = "string" && this.add_string_quotes) ? prim := '"' prim '"' : 0
+        return (_type = "unset")      ? "<UNSET>"
+            : (prim = "")             ? "<EMPTY_STR>"
             : !Peep.include_prim_type ? prim
             : prim " <" _type ">"
     }
@@ -163,7 +210,7 @@ class Peep
         
         ; OWNPROPS
         if (_type = "VarRef")
-            mid .= "`n" this.ind(ent) ";;NO_PROPERTIES"
+            mid .= "`n" this.ind(ent) "<NO_PROPERTIES>"
         else
             for k, v in item.OwnProps()
                 mid .= "`n" this.ind(ent) k ":"
@@ -178,8 +225,7 @@ class Peep
             for i, p in this.props.%gen%
                 mid .= "`n" this.ind(ent) p ":"
                     . (Peep.key_val_inline ? " " : "`n" this.ind(ent+1))
-                    . (p = "Gui" && gen = "guicontrol"
-                        ? item.gui.hwnd ; Return hwnd to avoid recursion
+                    . (p = "Gui" && gen = "guicontrol" ? item.gui.hwnd ; Return hwnd to avoid recursion
                     : this.checker(item.%p%, ent+1))
             
             ; GUI XYWH 
@@ -272,12 +318,16 @@ class Peep
         ,obm := ObjBindMethod(this, "enter_pressed")
         ,Hotkey("*Enter", obm)
         ,Hotkey("*NumpadEnter", obm)
-        ,HotIf()
+        ; Escape closes gui
+        If !(this.disable_escape)
+            obm := ObjBindMethod(this, "destroy")
+            ,Hotkey("*Escape", obm)
+        HotIf()
     }
     
     gui_display(txt) {
         defbtn := Peep.default_gui_btn
-        this.make_gui()
+        ,this.make_gui()
         ,this.gui.edit_box.value := txt
         ,this.gui.show()
         ,(defbtn = "clipboard") ? this.gui.btn_clipboard.Focus()
@@ -322,6 +372,8 @@ class Peep
     }
     
     ; ===== Examples =====
+    ; All of this demonstrates different aspects of Peep()
+    ; None of it is required for Peep() to operate.
     static demo() {
         this.showcase_options()
         this.showcase()
@@ -366,7 +418,7 @@ class Peep
         MsgBox("Property:"
             . "`n`nPeep.include_prim_type := 1"
             . "`n`nThis will include the primitive type next to the value."
-            . "`nThis is with primitives showing:")
+            . "`nHere is what it looks like with prim types showing: ")
         Peep.ind_type := '    '
         Peep.include_prim_type := 1
         Peep(obj)
@@ -384,8 +436,8 @@ class Peep
         
         MsgBox("Property:"
             . "`n`nPeep.key_val_inline := 1"
-            . "`n`nWhen set to true, key's and their values reside on the same line."
-            . "`nThis is what it looks like on:")
+            . "`n`nWhen set to true, keys and their values reside on the same line."
+            . "`nThis is what it looks like turned on:")
         Peep.key_val_inline := 1
         Peep(obj)
         
@@ -439,7 +491,6 @@ class Peep
     }
     
     static showcase() {
-        
         ; Primitives
         MsgBox("Showcase of the different types of objects in AHK."
             . "`nStarting with: Primitives")

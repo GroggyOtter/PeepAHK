@@ -21,6 +21,7 @@ showcase_options() {
     Peep.key_val_inline := 0
     Peep.gui_pause_code := 1
     Peep.include_properties := 1
+    Peep.add_string_quotes := 0
     
     MsgBox("Property:"
         . "`n`nPeep.ind_type := `"    `""
@@ -62,9 +63,16 @@ showcase_options() {
     Peep(obj)
     
     MsgBox("Property:"
+        . "`n`nPeep.add_string_quotes := 1"
+        . "`n`nIncludes quotation marks around string primitives.")
+    Peep.add_string_quotes := 1
+    Peep(obj)
+    
+    MsgBox("Property:"
         . "`n`nPeep.key_val_inline := 1"
         . "`n`nWhen set to true, keys and their values reside on the same line."
         . "`nThis is what it looks like turned on:")
+    Peep.add_string_quotes := 0
     Peep.key_val_inline := 1
     Peep(obj)
     
@@ -119,8 +127,10 @@ showcase_options() {
 
 showcase() {
     ; Primitives
-    MsgBox("Showcase of the different types of objects in AHK."
-        . "`nStarting with: Primitives")
+    MsgBox("Showcasing the different types of objects in AHK."
+        . "`nIf you want the generated text, look in the .value property of the returned object."
+        . "`n`np := Peep(obj)`nMsgBox(p.value)")
+    MsgBox("Starting with: Primitives")
     AHK := {string:"Hello, world!", integer:1000, float:3.14159}
     Peep(AHK)
     ; obj

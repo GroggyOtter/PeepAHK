@@ -77,7 +77,7 @@ class Peep
     static key_val_inline       := 1
     static gui_pause_code       := 1
     static include_properties   := 1
-    static array_values_inline   := 0
+    static array_values_inline  := 0
     static default_gui_btn      := "close"
     
     _is_enumerable      := {array:1, map:1, gui:1, regexmatchinfo:1}

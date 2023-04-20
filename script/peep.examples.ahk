@@ -4,6 +4,7 @@
 #include peep.ahk
 
 demo()
+ExitApp()
 
 demo() {
     showcase_options()
@@ -86,7 +87,6 @@ showcase_options() {
         . "immediately after."
         . "`n`nBe careful disabling this property when using Peep() inside a loop/timer as "
         . "it can inadvertently flood your system with GUI windows.")
-    Peep.key_val_inline := 0
     Peep.gui_pause_code := 0
     Peep(obj)
     

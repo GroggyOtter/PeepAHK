@@ -13,25 +13,25 @@
 ; Returns a string containing the text representation of the provided Object                        ;
 ;                                                                                                   ;
 ;=====  PROPERTIES  ================================================================================;
-; ind_type                  ; String. Character set to represent each level of indentation          ;
+; ind_type [str]            ; Character set to represent each level of indentation                  ;
 ;       Examples:    "    " ; 4 spaces                                                              ;
 ;                    "  "   ; 2 spaces                                                              ;
 ;                    "`t"   ; Tab                                                                   ;
 ;                    "|   " ; Adds a trailing bar between each indentation level                    ;
 ;                    "|---" ; Creates a grid effect                                                 ;
 ;___________________________________________________________________________________________________;
-; include_prim_type         ; If true, includes primitive type designation                          ;
+; include_prim_type [bool]  ; If true, includes primitive type next to primitives                   ;
 ;       Examples:      true ; Hello World <String>                                                  ;
 ;                     false ; Hello World                                                           ;
 ;___________________________________________________________________________________________________;
-; key_val_inline            ; If true, values are placed on same line as a key.                     ;
+; key_val_inline [bool]     ; If true, values are placed on same line as key.                       ;
 ;       Examples:      true ; Object{                                                               ;
-;                               key: value                                                          ;
-;                             }                                                                     ;
+;                           ;    key: value                                                         ;
+;                           ;  }                                                                    ;
 ;                     false ; Object{                                                               ;
-;                               key:                                                                ;
-;                                   value                                                           ;
-;                             }                                                                     ;
+;                           ;   key:                                                                ;
+;                           ;       value                                                           ;
+;                           ; }                                                                     ;
 ;___________________________________________________________________________________________________;
 ; display_text [num]        ; Disables displaying text or sets display type                         ;
 ;       Examples          0 ; Disables displaying text (text is still returned)                     ;
@@ -41,11 +41,11 @@
 ; gui_pause_code [bool]     ; If true, code flow pauses when custom GUI shows (similar to MsgBox()) ;
 ;___________________________________________________________________________________________________;
 ; include_properties [bool] ; If true, includes the built-in properties of the object               ;
-;___________________________________________________________________________________________________
-; default_gui_btn [str]     ; 
-;                           ; Can be set to "close", "resume", or "clipboard".                  ;
 ;___________________________________________________________________________________________________;
-; array_values_inline [bool] ; If true, array values are written inline with no index and object     ;
+; default_gui_btn [str]     ; Set the default button when the custom GUI is used                    ;
+;                                                                                                   ;
+;___________________________________________________________________________________________________;
+; array_values_inline [bool]; If true, array values are written inline with no index and object     ;
 ;                           ; properties are omitted.                                               ;
 ;                           ; Warning: This can deform output if you have objects inside arraysl    ;
 ;       Examples:  true     ; myArray[a, b]                                                         ;
@@ -55,9 +55,11 @@
 ;                           ; ]                                                                     ;
 ;___________________________________________________________________________________________________;
 ;=====  REMARKS  ===================================================================================;
-; This version includes a showcase_options() method to demonstrate the different properties.        ;
-; There is also a showcase() method to show all the different types of
 ; The "Resume Code" button on the custom GUI unpauses the script but keeps the GUI up.              ;
+;     This is only applicable when using the custom gui and gui_pause_code is true.                 ;
+; showcase_options() method demonstrates the different effects of each property.                    ;
+; showcase() method goes through all the different types of AHK objects.                            ;
+; demo() method runs both of the above mentioned methods.                                           ;
 ;===================================================================================================;
 
 ; === Examples ===
@@ -108,7 +110,7 @@ class Peep
         this.user_settings()
         this.inda := ["", Peep.ind_type]
         if IsSet(item)
-            this.__Call(item, opt)
+            return this.__Call(item, opt)
         else return ";;UNSET"
     }
     

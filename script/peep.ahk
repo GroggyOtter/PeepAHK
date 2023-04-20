@@ -10,7 +10,8 @@
 ;   Example: Peep(varOrObject)                                                                      ;
 ;                                                                                                   ;
 ;=====  RETURN  ====================================================================================;
-; Returns a string containing the text representation of the provided Object                        ;
+; Returns a Peep object                                                                             ;
+; The formatted text can be found in the .value property                                            ;
 ;                                                                                                   ;
 ;=====  PROPERTIES  ================================================================================;
 ; ind_type [str]            ; Character set to represent each level of indentation                  ;
@@ -33,59 +34,54 @@
 ;                           ;       value                                                           ;
 ;                           ; }                                                                     ;
 ;___________________________________________________________________________________________________;
-; display_text [num]        ; Disables displaying text or sets display type                         ;
-;       Examples:         0 ; Disables displaying text (text is still returned)                     ;
-;                         1 ; Use the custom-built GUI to display the text                          ;
-;                        -1 ; Use the default MsgBox() function                                     ;
-;___________________________________________________________________________________________________;
 ; add_string_quotes [bool]  ; If true, string primitives have quotation marks around them.          ;
 ;       Examples:      true ; "Some string"                                                         ;
 ;                     false ; Some string                                                           ;
 ;___________________________________________________________________________________________________;
+; include_properties [bool] ; If true, includes the built-in properties of the object               ;
+;___________________________________________________________________________________________________;
+; display_text [num]        ; Disables displaying text or sets display type                         ;
+;       Examples:         0 ; Disables displaying text (object is still returned)                   ;
+;                         1 ; Use the custom-built GUI to display the text                          ;
+;                        -1 ; Use the default MsgBox() function                                     ;
+;___________________________________________________________________________________________________;
 ; gui_pause_code [bool]     ; If true, code flow pauses when custom GUI shows (similar to MsgBox()) ;
 ;___________________________________________________________________________________________________;
-; include_properties [bool] ; If true, includes the built-in properties of the object               ;
+; disable_gui_escape [bool] ; If true, disables the "escape closes custom gui" hotkey               ;
 ;___________________________________________________________________________________________________;
 ; default_gui_btn [str]     ; Set the default button when the custom GUI is used                    ;
 ;___________________________________________________________________________________________________;
 ; array_values_inline [bool]; If true, array values are written inline with no index and object     ;
 ;                           ; properties are omitted.                                               ;
-;                           ; Warning: This can deform output if you have objects inside arraysl    ;
-;       Examples:  true     ; myArray[a, b]                                                         ;
-;                 false     ; myArray[                                                              ;
+;                           ; WARNING: This can mangle output if you have objects inside arrays     ;
+;       Examples:     true  ; myArray[a, b]                                                         ;
+;                    false  ; myArray[                                                              ;
 ;                           ;     1: a                                                              ;
 ;                           ;     2: b                                                              ;
 ;                           ; ]                                                                     ;
 ;___________________________________________________________________________________________________;
-; disable_escape [bool]     ; If true, disables the "escape closes custom gui" hotkey               ;
-;___________________________________________________________________________________________________;
 ;=====  REMARKS  ===================================================================================;
 ; The "Resume Code" button on the custom GUI unpauses the script but keeps the GUI up.              ;
 ;     This is only applicable when using the custom gui and gui_pause_code is true.                 ;
-; showcase_options() method demonstrates the different effects of each property.                    ;
-; showcase() method goes through all the different types of AHK objects.                            ;
-; demo() method runs both of the above mentioned methods.                                           ;
 ;===================================================================================================;
-
-; === Examples ===
-; Peep.demo()
 
 class Peep
 {
-    #Requires AutoHotkey v2.0+
+    #Requires AutoHotkey 2.0+
     static version  := "1.0"
     
-    ; ===== Custom Properties =====
+    ; ===== Custom Properties ============
     static ind_type             := '    '
-    static default_gui_btn      := "close"
     static include_prim_type    := 0
-    static display_text         := 1
     static key_val_inline       := 1
-    static gui_pause_code       := 1
-    static include_properties   := 1
-    static array_values_inline  := 0
     static add_string_quotes    := 1
-    static disable_escape       := 0
+    static include_properties   := 1
+    static display_text         := 1
+    static gui_pause_code       := 1
+    static disable_gui_escape   := 0
+    static default_gui_btn      := "close"
+    static array_values_inline  := 0
+    ; ====================================
     
     _is_enumerable      := {array:1, map:1, gui:1, regexmatchinfo:1}
     _is_prim            := {float:1, integer:1, number:1, string:1, unset:1}
@@ -107,57 +103,62 @@ class Peep
                ,regexmatchinfo:["Pos", "Len", "Count", "Mark"] }
     
     ind_type {
-        get => (this.HasOwnProp("_ind_type")) ? this._ind_type : Peep.ind_type
-        set => (StrLen(value) > 0 ? this._ind_type := value : "    ")
+        get => Peep.ind_type
+        set => Peep._ind_type := (StrLen(value) > 0) ? value : "    "
     }
     
     include_prim_type {
-        get => (this.HasOwnProp("_include_prim_type")) ? this._include_prim_type : Peep.include_prim_type
-        set => this._include_prim_type := (value) ? 1 : 0
+        get => Peep.include_prim_type
+        set => Peep._include_prim_type := (value) ? 1 : 0
     }
     
     display_text {
-        get => (this.HasOwnProp("_display_text")) ? this._display_text : Peep.display_text
-        set => this._display_text := (value > 0) ? 1 : (value = 0) ? 0 : -1
+        get => Peep.display_text
+        set => Peep._display_text := (value > 0) ? 1 : (value = 0) ? 0 : -1
     }
     
     key_val_inline {
-        get => (this.HasOwnProp("_key_val_inline")) ? this._key_val_inline : Peep.key_val_inline
-        set => this._key_val_inline := (value) ? 1 : 0
+        get => Peep.key_val_inline
+        set => Peep._key_val_inline := (value) ? 1 : 0
     }
     
     gui_pause_code {
-        get => (this.HasOwnProp("_gui_pause_code")) ? this._gui_pause_code : Peep.gui_pause_code
-        set => this.gui_pause_code := (value) ? 1 : 0
+        get => Peep.gui_pause_code
+        set => Peep.gui_pause_code := (value) ? 1 : 0
     }
     
     include_properties {
-        get => (this.HasOwnProp("_include_properties")) ? this._include_properties : Peep.include_properties
-        set => this._include_properties := (value) ? 1 : 0
+        get => Peep.include_properties
+        set => Peep._include_properties := (value) ? 1 : 0
     }
     
     array_values_inline {
-        get => (this.HasOwnProp("_array_values_inline")) ? this._array_values_inline : Peep.array_values_inline
-        set => this._array_values_inline := (value) ? 1 : 0
+        get => Peep.array_values_inline
+        set => Peep._array_values_inline := (value) ? 1 : 0
     }
     
     add_string_quotes {
-        get => (this.HasOwnProp("_add_string_quotes")) ? this._add_string_quotes : Peep.add_string_quotes
-        set => this._add_string_quotes := (value) ? 1 : 0
+        get => Peep.add_string_quotes
+        set => Peep._add_string_quotes := (value) ? 1 : 0
     }
     
     default_gui_btn {
-        get => (this.HasOwnProp("_default_gui_btn")) ? this._default_gui_btn : Peep.default_gui_btn
-        set => this._default_gui_btn := InStr(value, "clip") ? "clipboard"
+        get => Peep.default_gui_btn
+        set => Peep._default_gui_btn := InStr(value, "clip") ? "clipboard"
                                       : InStr(value, "res") ? "resume" : "close"
     }
     
+    disable_gui_escape {
+        get => Peep.disable_gui_escape
+        set => Peep._disable_gui_escape := (value) ? 1 : 0
+    }
     
     __New(item, opt:="") {
         this.inda := ["", Peep.ind_type]
-        if IsSet(item)
-            return this.__Call(item, opt)
-        else return ";;UNSET"
+        this.value := ""
+        if !IsSet(item)
+            this.value := "<UNSET>"
+        this.value := this.__Call(item, opt)
     }
     
     __Call(item, opt:="") {
@@ -175,11 +176,14 @@ class Peep
             :   InStr(_type, "menu")  ? "menu"
             :   _type
         
-        switch {
-            case this.is_prim[gen]:  return this.primitive(item, _type)
-            case this.is_valid[gen]: return this.extract(item, _type, gen, ent)
-            default:                 return MsgBox((txt := "Unsupported Type -> " _type)) ? txt : txt
-        }
+        return this.is_prim[gen]
+            ? this.primitive(item, _type)
+            : this.extract(item, _type, gen, ent)
+        
+        ; switch {
+        ;     case this.is_prim[gen]:  return this.primitive(item, _type)
+        ;     default:                 return this.extract(item, _type, gen, ent)
+        ; }
     }
     
     primitive(prim, _type) {
@@ -273,6 +277,7 @@ class Peep
         ,bw := 130
         ,edr:= 30
         ,edh:= gh - m*2 - bh
+        ,happy:=420
         ,bg_color := 0x101010
         
         ; Gui
@@ -282,7 +287,7 @@ class Peep
             ,goo.SetFont("s10")
             ,obm := ObjBindMethod(goo, "Destroy")
             ,goo.OnEvent("Close", obm)
-
+        
         ; Edit box
             opt := " ReadOnly -Wrap +0x300000 -WantReturn -WantTab"
             ,gce := goo.AddEdit("xm ym w" gw-m*2 " r" edr opt)
@@ -319,21 +324,22 @@ class Peep
         ,Hotkey("*Enter", obm)
         ,Hotkey("*NumpadEnter", obm)
         ; Escape closes gui
-        If !(this.disable_escape)
+        If !(this.disable_gui_escape)
             obm := ObjBindMethod(this, "destroy")
             ,Hotkey("*Escape", obm)
         HotIf()
     }
     
     gui_display(txt) {
-        defbtn := Peep.default_gui_btn
-        ,this.make_gui()
+        this.make_gui()
         ,this.gui.edit_box.value := txt
         ,this.gui.show()
-        ,(defbtn = "clipboard") ? this.gui.btn_clipboard.Focus()
-        : (defbtn = "resume")   ? this.gui.btn_resume.Focus()
-        :                         this.gui.btn_close.Focus()
-        ,Peep.gui_pause_code ? Pause() : 0
+        switch Peep.default_gui_btn {
+            case "clipboard": this.gui.btn_clipboard.Focus()
+            case "resume": this.gui.btn_resume.Focus()
+            default: this.gui.btn_close.Focus()
+        }
+        (Peep.gui_pause_code) ? Pause() : 0
     }
     
     enter_pressed(*) {
@@ -369,201 +375,5 @@ class Peep
     save_to_clip(*) {
         A_Clipboard := this.gui.edit_box.value
         ,TrayTip("Text copied to clipboard", "Peep(AHK)", 0x10)
-    }
-    
-    ; ===== Examples =====
-    ; All of this demonstrates different aspects of Peep()
-    ; None of it is required for Peep() to operate.
-    static demo() {
-        this.showcase_options()
-        this.showcase()
-    }
-    
-    static showcase_options() {
-        obj := {key_arr:["alpha", "bravo", "charlie"]
-            , key_map: Map("true",1, "false",0, "Jell","O", "Big","Lebowski")
-            , key_2x2_matrix:[[1,2],[1,2]]
-            , key_literal_obj:{c_to_f:"temp * 9 / 5 + 32", f_to_c:"temp - 32 * 5 / 9"}}
-        Peep.ind_type := '    '
-        Peep.include_prim_type := 0
-        Peep.display_text := -1
-        Peep.key_val_inline := 0
-        Peep.gui_pause_code := 1
-        Peep.include_properties := 1
-        
-        MsgBox("Property:"
-            . "`n`nPeep.ind_type := `"    `""
-            . "`n`nDefines a character set for indenting text."
-            . "`nThis can be spaces, a tab, or include other chars."
-            . "`n4 space = `"    `""
-            . "`n1 tab = `"``t`""
-            . "`n`nThis is 2 spaces:")
-        Peep.ind_type := '  '
-        Peep(obj)
-        MsgBox("And 4 spaces:")
-        Peep.ind_type := '    '
-        Peep(obj)
-        MsgBox("You can do different things by adjusting the indent."
-            . "`nAdding a pipe as the first char makes lines connecting each element."
-            . "`n`nPeep.ind_type := `"|   `""
-            . "`n`nUsing a pipe and some dashes produces a grid effect left of the data."
-            . "`n`nPeep.ind_type := `"|---`"" )
-        Peep.ind_type := '|    '
-        Peep(obj)
-        MsgBox("With underscores:"
-            . "`nPeep.ind_type := `"____`"")
-        Peep.ind_type := "____"
-        Peep(obj)
-        
-        MsgBox("Property:"
-            . "`n`nPeep.include_prim_type := 1"
-            . "`n`nThis will include the primitive type next to the value."
-            . "`nHere is what it looks like with prim types showing: ")
-        Peep.ind_type := '    '
-        Peep.include_prim_type := 1
-        Peep(obj)
-        
-        MsgBox("Property:"
-            . "`n`nPeep.display_text := 1"
-            . "`n`n1 uses the custom built GUI."
-            . "`n0 will suspend displaying anything but still returns the text"
-            . "`n-1 uses the default message box."
-            . "`n`nWe've used messagebox so far."
-            . "`nThis is the custom GUI:")
-        Peep.include_prim_type := 0
-        Peep.display_text := 1
-        Peep(obj)
-        
-        MsgBox("Property:"
-            . "`n`nPeep.key_val_inline := 1"
-            . "`n`nWhen set to true, keys and their values reside on the same line."
-            . "`nThis is what it looks like turned on:")
-        Peep.key_val_inline := 1
-        Peep(obj)
-        
-        MsgBox("Property:"
-            . "`n`nPeep.gui_pause_code := 0"
-            . "`n`nWhen set to true, the flow of code is paused when the custom GUI pops up."
-            . "`nThis creates a similar effect to MsgBox() and "
-            . " allows Peep() to be used for troubleshooting code."
-            . "`nIt has been enabled so far but will be disabled for the next popup."
-            . "`nThat means the custom GUI will come up and the next message box will pop up "
-            . "immediately after."
-            . "`n`nBe careful disabling this property when using Peep() inside a loop/timer as "
-            . "it can inadvertently flood your system with GUI windows.")
-        Peep.key_val_inline := 0
-        Peep.gui_pause_code := 0
-        Peep(obj)
-        
-        MsgBox("(Make sure to read the Peep.gui_pause_code custom GUI pop up before going on.)"
-            . "`n`nProperty:"
-            . "`n`nPeep.include_properties := 0"
-            . "`n`nSetting this to true includes an object's built-in properties and marks them as such."
-            . "`nBuilt-in properties are properties provided by the AHK object, such as:"
-            . "`nArray.Length"
-            . "`nBuffer.Ptr"
-            . "`nRegExMatchInfo.Subpatterns"
-            . "`nEtc..."
-            . "`n`nThis is without properties and should be noticeably shorter:")
-        Peep.gui_pause_code := 1
-        Peep.include_properties := 0
-        Peep(Obj)
-        
-        MsgBox("Property:"
-            . "`n`nPeep.array_values_inline := 1"
-            . "`n`nThis forces array values to stay on one line."
-            . "`n`nThis is a niche property and should normally be set to false."
-            . "`nIf the array contains other objects, it can strongly distort/disfigure the "
-            . "text output.")
-        Peep.include_properties := 0
-        Peep.array_values_inline := 1
-        Peep(Obj)
-        
-        MsgBox("Property:"
-            . "`n`nPeep.default_gui_btn := `"resume`""
-            . "`n`nSet the default button when using the custom GUI."
-            . "`nThis value can be: close resume clipboard" )
-        Peep.array_values_inline := 0
-        Peep.default_gui_btn := "resume"
-        Peep(Obj)
-        
-        MsgBox("End of options demo.")
-    }
-    
-    static showcase() {
-        ; Primitives
-        MsgBox("Showcase of the different types of objects in AHK."
-            . "`nStarting with: Primitives")
-        AHK := {string:"Hello, world!", integer:1000, float:3.14159}
-        Peep(AHK)
-        ; obj
-        MsgBox("It works with all kinds of different AHK objects:`n-array `n-map `n-buffer"
-            . "`n-class `n-file `n-inputhook `n-menu `n-menubar `n-regex"
-            . "`n-error `n-funcobj `n-gui `n-guicontrol `n-varref")
-        
-        ; arr
-        ahk := {}
-        arr := [80, 101, 101, 112, 65, 72, 75]
-        arr.default := "Even does array default values!"
-        ahk.array := arr
-        ; map
-        ahk.map := Map("Peep", "AHK")
-        ahk.map.default := "Don't forget map default value."
-        ; buffer
-        ahk.buffer := Buffer(StrPut("Peep(AHK)"), 0)
-        ; class
-        ahk.class := peep
-        ; File
-        ahk.file := FileOpen(A_ScriptDir "\Peep.v2.ahk", 0)
-        Peep(ahk)
-        
-        MsgBox("But wait, there's more!")
-        ; InputHook
-        ahk := {}
-        ahk.hook := InputHook()
-        ; Menu
-        ahk.menu := Menu()
-        ahk.menubar := MenuBar()
-        ; RegEx Obj
-        RegExMatch("AHK", "(?<subpattern_firstchar>.)(.)(?'sub_charNum3'.)", &ro)
-        ahk.regex := ro
-        ; Error
-        try throw ValueError("Error message", "Location of error (func/method)", "Extra information")
-        catch ValueError as err
-        ahk.error := err
-        ; FuncObj
-        ahk.funcObj := MsgBox.bind("Peep AHK, not neighbors")
-        ; Bound Method
-        ahk.boundMethod := ObjBindMethod(Peep, "test", "Clever")
-        ; GUI / GUI Control
-        ahk.gui := Gui()
-        ahk.guicontrol := ahk.gui.AddButton("x5 y5 w100 h30")
-        ; VarRef
-        some_var := 1
-        ahk.VarRef := &some_var
-        Peep(ahk)
-        
-        ; Complex test
-        MsgBox("A slightly more complex object")
-        try throw Error("x", "y", "z")
-        catch as err
-        y := gui(), y.AddButton, y.AddEdit, y.AddText
-        Peep({key1:[{x_value:(x := 0),x_var_ref:&x},{gui_obj:y,gui_var_ref:&y}]
-            , key2:Map("map1", Map("Error",err), "map2", Map("color","Green", "smell","Earthy", "strain","kush"))
-            , key3:{jenny:8675309}})
-        
-        MsgBox("This demonstration was made possible by contributions to your PBS station."
-            . "`nFrom viewers like you!!")
-        MsgBox("No, wait. That's PBS. I don't get anything from them."
-            . "`nThat's my bad.`nI mean Big Bird gets a slice but he doesn't bother teaching AHK "
-            . "to those little kids. Wasted opportunity and yet they're still cutting him a check.")
-        MsgBox("Do I need to point out he's a bird?!"
-            . "`nWhere's the otter's check?`nJust b/c I'm groggy doesn't mean I'm not putting in "
-            . "the hours like Mr Yellow Bird."
-            . "`nNow I see why Oscar is so pissed all the time."
-            . "`nDamn bird is always taking the spotlight.")
-        MsgBox("In a weird way I really feel for Wile E Coyote right now.`nWhy's the roadrunner "
-            . "always gotta win?")
-        MsgBox("Anyway, hope you enjoyed the showcase/demonstration of Peep()")
     }
 }

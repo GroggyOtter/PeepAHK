@@ -8,8 +8,8 @@ The class comes with multiple properties you can change (covered below) to help 
 
 Benefits of this class:  
 
-- Allows you to quickly see inside a variable/object
-- Ensure objects are being contstructed correct;y  
+- Allows you to quickly see inside (almost) any variable/object
+- Ensure objects are being constructed correctly  
 - Verify values and primitive types
 - Provides a custom GUI for displaying text and copying to clipboard
 - Edit control allows you to pull smaller snippets from text
@@ -92,9 +92,9 @@ If true, AHK's built-in properties are included for each object type.
 ### Peep.display_text := [num]
 This setting controls how text is displayed to the user.  
 
-1 = Use the custom GUI to dispaly formatted text  
+1 = Use the custom GUI to display formatted text  
 -1 = Use Window's default message box  
-0 = No dispaly is shown but the peep object is still returned  
+0 = No display is shown but the peep object is still returned  
 
 * [`Peep.display_text := 1`](https://i.imgur.com/dqnCxYY.png)
 * [`Peep.display_text := -1`](https://i.imgur.com/YIoh8eU.png)

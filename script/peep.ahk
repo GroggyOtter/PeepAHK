@@ -45,11 +45,14 @@
 ;                         1 ; Use the custom-built GUI to display the text                          ;
 ;                        -1 ; Use the default MsgBox() function                                     ;
 ;___________________________________________________________________________________________________;
+; exit_on_close             ; If true, the script calling Peep will close when Peep's gui is closed ;
+;___________________________________________________________________________________________________;
 ; gui_pause_code [bool]     ; If true, code flow pauses when custom GUI shows (similar to MsgBox()) ;
 ;___________________________________________________________________________________________________;
 ; disable_gui_escape [bool] ; If true, disables the "escape closes custom gui" hotkey               ;
 ;___________________________________________________________________________________________________;
 ; default_gui_btn [str]     ; Set the default button when the custom GUI is used                    ;
+;                           ; Values: clipboard close exit resume
 ;___________________________________________________________________________________________________;
 ; array_values_inline [bool]; If true, array values are written inline with no index and object     ;
 ;                           ; properties are omitted.                                               ;
@@ -68,7 +71,7 @@
 class Peep
 {
     #Requires AutoHotkey 2.0+
-    static version  := "1.0"
+    static version  := "1.1"
     
     ; ===== Custom Properties ============
     static ind_type             := '    '
@@ -77,6 +80,7 @@ class Peep
     static add_string_quotes    := 1
     static include_properties   := 1
     static display_text         := 1
+    static exit_on_close        := 1
     static gui_pause_code       := 1
     static disable_gui_escape   := 0
     static default_gui_btn      := "close"
@@ -145,7 +149,9 @@ class Peep
     default_gui_btn {
         get => Peep.default_gui_btn
         set => Peep._default_gui_btn := InStr(value, "clip") ? "clipboard"
-                                      : InStr(value, "res") ? "resume" : "close"
+                                      : InStr(value, "res")  ? "resume"
+                                      : InStr(value, "ex")   ? "exit"
+                                                             : "close"
     }
     
     disable_gui_escape {
@@ -153,20 +159,21 @@ class Peep
         set => Peep._disable_gui_escape := (value) ? 1 : 0
     }
     
-    __New(item, opt:="") {
+    __New(item*) {
         this.inda := ["", Peep.ind_type]
-        this.value := ""
-        if !IsSet(item)
-            this.value := "<UNSET>"
-        this.value := this.__Call(item, opt)
+        ,this.value := ""
+        ,this.__Call(item*)
     }
     
-    __Call(item, opt:="") {
-        txt := this.checker(item, 1)
-        ,txt := Trim(txt, " `t`n`r" Peep.ind_type)
+    __Call(item*) {
+        txt := ""
+        ,spacer := "`n----------------------------------------`n"
+        for k, v in item
+            txt .= (IsSet(v) ? this.checker(v, 1) : "<UNSET>") . spacer
+        txt := RTrim(txt, spacer)
+        ,this.value := txt
         ,(Peep.display_text > 0) ? this.gui_display(txt)
         :(Peep.display_text < 0) ? MsgBox(txt) : 0 
-        return txt
     }
     
     checker(item, ent) {
@@ -179,11 +186,6 @@ class Peep
         return this.is_prim[gen]
             ? this.primitive(item, _type)
             : this.extract(item, _type, gen, ent)
-        
-        ; switch {
-        ;     case this.is_prim[gen]:  return this.primitive(item, _type)
-        ;     default:                 return this.extract(item, _type, gen, ent)
-        ; }
     }
     
     primitive(prim, _type) {
@@ -271,14 +273,19 @@ class Peep
     ; ===== GUI Stuff =====
     make_gui() {
         gw  := 500
-        ,gh := 600
+        ,gh := 800
         ,m  := 5
-        ,bh := 30
-        ,bw := 130
-        ,edr:= 30
-        ,edh:= gh - m*2 - bh
         ,happy:=420
         ,bg_color := 0x101010
+        ;             Btn txt              callback        btn id
+        ,btn_arr := [["Close"             ,"destroy"      ,"close"     ]
+                    ,["Resume Code"       ,"resume_code"  ,"resume"    ]
+                    ,["Save to Clipboard" ,"save_to_clip" ,"clipboard" ]
+                    ,["Exit Script"       ,"exit"         ,"exit"      ] ]
+        ,bh := 30
+        ,bw := (gw - m) / btn_arr.Length
+        ,edr:= 30
+        ,edh:= gh - m*2 - bh
         
         ; Gui
             goo := Gui()
@@ -297,15 +304,13 @@ class Peep
             ,goo.edit_box := gce
         
         ; Close/resume/clipboard buttons
-            btn_arr := [["Close"             ,"xm y+" m "           " ,"destroy"      ,"close"    ]
-                       ,["Resume Code"       ,"x" (gw/2 - bw/2) " yp" ,"resume_code"  ,"resume"   ]
-                       ,["Save to Clipboard" ,"x" (gw - m - bw) " yp" ,"save_to_clip" ,"clipboard"] ]
-            
             for k, v in btn_arr {
-                name := v[4]
-                ,gcb := goo.AddButton(v[2] " w" bw " h" bh " Center Border 0x200", v[1])
+                name := v[3]
+                ,x := (A_Index = 1 ? " xm " : " x+m ")
+                ,y := (A_Index = 1 ? " y+m " : " yp ")
+                ,gcb := goo.AddButton(x y "w" bw " h" bh " Center Border 0x200", v[1])
                 ,gcb.SetFont("s10 cFFFFFF")
-                ,obm := ObjBindMethod(this, v[3])
+                ,obm := ObjBindMethod(this, v[2])
                 ,gcb.OnEnter := obm
                 ,gcb.OnEvent("Click", obm)
                 ,goo.btn_%name% := gcb
@@ -324,7 +329,7 @@ class Peep
         ,Hotkey("*Enter", obm)
         ,Hotkey("*NumpadEnter", obm)
         ; Escape closes gui
-        If !(this.disable_gui_escape)
+        If !(Peep.disable_gui_escape)
             obm := ObjBindMethod(this, "destroy")
             ,Hotkey("*Escape", obm)
         HotIf()
@@ -334,12 +339,9 @@ class Peep
         this.make_gui()
         ,this.gui.edit_box.value := txt
         ,this.gui.show()
-        switch Peep.default_gui_btn {
-            case "clipboard": this.gui.btn_clipboard.Focus()
-            case "resume": this.gui.btn_resume.Focus()
-            default: this.gui.btn_close.Focus()
-        }
-        (Peep.gui_pause_code) ? Pause() : 0
+        ,btn_name := Peep.default_gui_btn
+        ,this.gui.btn_%btn_name%.Focus()
+        ,Peep.gui_pause_code ? Pause() : 0
     }
     
     enter_pressed(*) {
@@ -362,9 +364,8 @@ class Peep
     
     destroy(*) {
         KeyWait("LButton", "P")
-        if A_IsPaused
-            this.resume_code()
-        this.gui.destroy()
+        (A_IsPaused) ? this.resume_code() : 0
+        ,this.gui.destroy()
     }
     
     resume_code(*) {
@@ -375,5 +376,9 @@ class Peep
     save_to_clip(*) {
         A_Clipboard := this.gui.edit_box.value
         ,TrayTip("Text copied to clipboard", "Peep(AHK)", 0x10)
+    }
+    
+    exit(*) {
+        ExitApp()
     }
 }

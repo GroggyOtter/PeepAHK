@@ -1,20 +1,45 @@
 # Peep(AHK)
 
-### Peep() is an AHK class that allows you to view almost anything in AHK.
+### Peep() is an AHK class that allows you to view almost anything in AHK.  
+
+It recursively loops through any object, determining what each key:value pair is and creating a visual text map of the contents.  
+
+The class comes with multiple properties you can change (covered below) to help fully customize the experience.
+
+Benefits of this class:  
+
+- Allows you to quickly see inside a variable/object
+- Ensure objects are being contstructed correct;y  
+- Verify values and primitive types
+- Provides a custom GUI for displaying text and copying to clipboard
+- Edit control allows you to pull smaller snippets from text
+- Custom GUI is able to pause code flow (similar to MsgBox)
+- Other fun stuff!
+
+Let's say you have the following complex object:
+```
+my_obj := {key_arr:["alpha", "bravo", "charlie"], key_map: Map("true",1, "false",0, "Jell","O", "Big","Lebowski"), key_2x2_matrix:[[1,2],[1,2]], key_literal_obj:{c_to_f:"temp * 9 / 5 + 32", f_to_c:"temp - 32 * 5 / 9"}}
+```
+
+By using Peep(), we can get a full visual representation of the object and all of its contents.
 
 ```
-obj := {key_arr:["alpha", "bravo", "charlie"], key_map: Map("true",1, "false",0, "Jell","O", "Big","Lebowski"), key_2x2_matrix:[[1,2],[1,2]], key_literal_obj:{c_to_f:"temp * 9 / 5 + 32", f_to_c:"temp - 32 * 5 / 9"}}
-Peep(obj)
+Peep(my_obj)
 ```
 
-![Image of an peep() result for the previously defined object.](https://i.imgur.com/QhSokAJ.png)
+![Preview of Peep() using msgbox()](https://i.imgur.com/YIoh8eU.png)  ![Preview of Peep() using custom gui](https://i.imgur.com/dqnCxYY.png)
+
+Along with [`peep.ahk`](https://github.com/GroggyOtter/PeepAHK/blob/main/script/peep.ahk), there's also a [`peep.examples.ahk`](https://github.com/GroggyOtter/PeepAHK/blob/main/script/peep.examples.ahk) file that showcases all the object types as well as examples of most of the properties.  
+
+![Example of Peep() from the example file](https://i.imgur.com/N4sAard.png)
 
 ## Usage:
 
 ```
-Peep(obj)
+Peep(someVarOrObj)          ; Peep can be used to do a view any variable or object
 
-obj can be any object, array, map, or primitive.
+peepObj := Peep(someObj)    ; It always returns an object after being called
+MsgBox(peepObj.value)       ; The formatted text can be found in the object's .value property
 ```
 
 ***

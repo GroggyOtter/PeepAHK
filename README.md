@@ -1,10 +1,10 @@
 # Peep(AHK)
 
 ## Navigation:
-1. [What is Peep()?](https://github.com/GroggyOtter/PeepAHK/tree/main#what-is-peep)
-2. [Usage](https://github.com/GroggyOtter/PeepAHK/tree/main#usage)
-3. [Peep.Properties](https://github.com/GroggyOtter/PeepAHK/tree/main#peepproperties)
-4. [Changelog](https://github.com/GroggyOtter/PeepAHK/tree/main#changelog)
+1. [What is Peep()?](#what-is-peep)
+2. [Usage](#usage)
+3. [Peep.Properties](#peepproperties)
+4. [Changelog](#changelog)
 ***
 ## What is Peep()?
 

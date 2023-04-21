@@ -58,19 +58,19 @@ MsgBox(peepObj.value)
 ***
 ## Peep.Properties
 
-### Peep.ind_type := [str]
+### `Peep.ind_type := [str]`
 
 Character set to represent each level of indentation.
 
-* [`Peep.ind_type := "    "    ; 4 Spaces`](https://i.imgur.com/IF2ilRC.png)
-* [`Peep.ind_type := "  "    ; 2 spaces`](https://i.imgur.com/B5eBiUr.png)
-* [``Peep.ind_type := "`t"    ; Tab``](https://i.imgur.com/Gs6eaw4.png)
-* [`Peep.ind_type := "|   "    ; Create a connecting pipe between elements`](https://i.imgur.com/7MENPqC.png)
-* [`Peep.ind_type := "|---"    ; Create a grid effect`](https://i.imgur.com/dBkAfUO.png)
+* [`Peep.ind_type := "    "` 4 Spaces](https://i.imgur.com/IF2ilRC.png)
+* [`Peep.ind_type := "  "` 2 spaces](https://i.imgur.com/B5eBiUr.png)
+* [``Peep.ind_type := "`t"`` Tab](https://i.imgur.com/Gs6eaw4.png)
+* [`Peep.ind_type := "|   "` Create a connecting pipe between elements](https://i.imgur.com/7MENPqC.png)
+* [`Peep.ind_type := "|---"` Create a grid effect](https://i.imgur.com/dBkAfUO.png)
 
 
 ***
-### Peep.include_prim_type := [bool]
+### `Peep.include_prim_type := [bool]`
 If true, output includes primitive type next to primitive.
 
 * [`Peep.include_prim_type := 0`](https://i.imgur.com/3AIZANV.png)
@@ -78,7 +78,7 @@ If true, output includes primitive type next to primitive.
 
 
 ***
-### Peep.key_val_inline := [bool]
+### `Peep.key_val_inline := [bool]`
 If true, keys and values reside on the same line.
 
 * [`Peep.key_val_inline := 1`](https://i.imgur.com/QmqHorr.png)
@@ -86,7 +86,7 @@ If true, keys and values reside on the same line.
 
 
 ***
-### Peep.add_string_quotes := [bool]
+### `Peep.add_string_quotes := [bool]`
 If true, strings include quotation marks around them.
 
 * [`Peep.add_string_quotes := 1`](https://i.imgur.com/yn6M3v5.png)
@@ -94,7 +94,7 @@ If true, strings include quotation marks around them.
 
 
 ***
-### Peep.include_properties := [bool]
+### `Peep.include_properties := [bool]`
 If true, AHK's built-in properties are included for each object type.  
 
 * [`Peep.include_properties := 1`](https://i.imgur.com/Jqmy5Uz.png)
@@ -102,7 +102,7 @@ If true, AHK's built-in properties are included for each object type.
 
 
 ***
-### Peep.display_text := [num]
+### `Peep.display_text := [num]`
 This setting controls how text is displayed to the user.  
 
 1 = Use the custom GUI to display formatted text  
@@ -114,18 +114,23 @@ This setting controls how text is displayed to the user.
 
 
 ***
-### Peep.gui_pause_code := [bool]
+### `Peep.gui_pause_code := [bool]`
 When set to true, this makes your script's code pause when the custom GUI pops up.  
 This emulates the same behavior as using MsgBox() and makes Peep() useful for troubleshooting.
 
 
 ***
-### Peep.disable_gui_escape := [bool]
+### `Peep.disable_gui_escape := [bool]`
 If true, this disables escape closing the custom gui.
 
 
 ***
-### Peep.array_values_inline := [bool]
+### `Peep.exit_on_close := [bool]`
+If true, the script that called Peep() will close when the Peep() popup is closed.
+
+
+***
+### `Peep.array_values_inline := [bool]`
 If true, puts all array elements on the same line.  
 Warning. This is a niche setting and can mangle output if you have other objects inside of an array.
 
@@ -134,7 +139,6 @@ Warning. This is a niche setting and can mangle output if you have other objects
 
 
 ## Changelog
-***
 ### v1.0
 * Initial commit
 ***

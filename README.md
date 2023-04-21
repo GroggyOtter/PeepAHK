@@ -1,9 +1,8 @@
 # Peep(AHK)
 
-## Navigation:
 1. [What is Peep()?](#what-is-peep)
 2. [Usage](#usage)
-3. [Peep.Properties](#peepproperties)
+3. [Peep Properties](#peepproperties)
 4. [Changelog](#changelog)
 ***
 ## What is Peep()?
@@ -39,15 +38,21 @@ Peep(my_obj)
 
 Along with [`peep.ahk`](https://github.com/GroggyOtter/PeepAHK/blob/main/script/peep.ahk), there's also a [`peep.examples.ahk`](https://github.com/GroggyOtter/PeepAHK/blob/main/script/peep.examples.ahk) file that showcases all the object types as well as examples of most of the properties.  
 
-![Example of Peep() from the example file](https://i.imgur.com/N4sAard.png)
+![Example of updated Peep() with exit script button added](https://i.imgur.com/M0ZSsLo.png)
 
 ## Usage:
 
 ```
-Peep(someVarOrObj)          ; Peep can be used to do a view any variable or object
+; Peep can be used to do a view any variable or object
+Peep(someVarOrObj)
 
-peepObj := Peep(someObj)    ; It always returns an object after being called
-MsgBox(peepObj.value)       ; The formatted text can be found in the object's .value property
+; Multiple items can be passed in at once
+Peep(var1, var2, obj2)
+
+; An object is always returned
+; The formatted text can be found in the object's .value property
+peepObj := Peep(someObj)
+MsgBox(peepObj.value)
 ```
 
 ***
@@ -129,4 +134,13 @@ Warning. This is a niche setting and can mangle output if you have other objects
 
 
 ## Changelog
-v1.0 - Initial commit
+***
+### v1.0
+* Initial commit
+***
+### v1.1
+* Added an [`Exit Script`](https://i.imgur.com/M0ZSsLo.png) button to close whatever script called peep()  
+* Added ability to pass multiple variables/objects into peep().  
+  `Peep(var1, obj1, obj2, arr1)`
+* Added an `exit_on_close` property.  
+  When set to true, the script that called Peep() will close when the GUI is closed.  

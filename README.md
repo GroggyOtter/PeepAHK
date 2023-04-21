@@ -1,6 +1,14 @@
 # Peep(AHK)
 
-### Peep() is an AHK class that allows you to view almost anything in AHK.  
+## Navigation:
+1. [What is Peep()?](https://github.com/GroggyOtter/PeepAHK/tree/main#what-is-peep)
+2. [Usage](https://github.com/GroggyOtter/PeepAHK/tree/main#usage)
+3. [Peep.Properties](https://github.com/GroggyOtter/PeepAHK/tree/main#peepproperties)
+4. [Changelog](https://github.com/GroggyOtter/PeepAHK/tree/main#changelog)
+***
+## What is Peep()?
+
+Peep() is an AHK class that allows you to view almost anything in AHK.  
 
 It recursively loops through any object, determining what each key:value pair is and creating a visual text map of the contents.  
 
@@ -43,7 +51,7 @@ MsgBox(peepObj.value)       ; The formatted text can be found in the object's .v
 ```
 
 ***
-## Properties
+## Peep.Properties
 
 ### Peep.ind_type := [str]
 
@@ -118,3 +126,7 @@ Warning. This is a niche setting and can mangle output if you have other objects
 
 * [`Peep.array_values_inline := 1`](https://i.imgur.com/mVmqD2I.png)
 * [`Peep.array_values_inline := 0`](https://i.imgur.com/TxAAXD7.png)
+
+
+## Changelog
+v1.0 - Initial commit

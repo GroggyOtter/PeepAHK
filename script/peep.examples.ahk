@@ -1,7 +1,7 @@
 ; ===== Examples =====
 ; All of this demonstrates different aspects of Peep()
 ; None of it is required for Peep() to operate.
-#include peep.ahk
+#include peep.v2.ahk
 
 demo()
 ExitApp()

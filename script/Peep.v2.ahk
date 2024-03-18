@@ -177,7 +177,7 @@ class Peep
         :(Peep.display_text < 0) ? MsgBox(txt) : 0 
     }
     
-    checker(item, ent) {
+    checker(item?, ent := 616) {
         _type := !IsSet(item) ? "unset" : Type(item)
         ,gen := InStr(_type, "error") ? "error"
             :   InStr(_type, "gui.")  ? "guicontrol"
@@ -185,11 +185,11 @@ class Peep
             :   _type
         
         return this.is_prim[gen]
-            ? this.primitive(item, _type)
-            : this.extract(item, _type, gen, ent)
+            ? this.primitive(item?, _type)
+            : this.extract(item?, _type, gen, ent)
     }
     
-    primitive(prim, _type) {
+    primitive(prim?, _type := "dont look at me!") {
         (_type = "string" && this.add_string_quotes) ? prim := '"' prim '"' : 0
         return (_type = "unset")      ? "<UNSET>"
             : (prim = "")             ? "<EMPTY_STR>"
@@ -197,7 +197,7 @@ class Peep
             : prim " <" _type ">"
     }
     
-    extract(item, _type, gen, ent) {
+    extract(item?, _type := "dont look at me!", gen := "explain this parameter", ent := 666) {
         ; OPENER
         (Peep.key_val_inline && ent > 1) ? ent-- : 0
         str := _type this.bracket(_type, "o"), ent++
@@ -230,10 +230,10 @@ class Peep
         If this.is_enumerable[_type]
             for k, v in item
                 mid .= (Peep.array_values_inline && _type = "array")
-                        ? (A_Index > 1 ? ", " : "") this.checker(v, ent+1)
+                        ? (A_Index > 1 ? ", " : "") this.checker(v?, ent+1)
                     : "`n" this.ind(ent) k ":"
                     . (Peep.key_val_inline ? " " : "`n" this.ind(ent+1))
-                    . this.checker(v, ent+1)
+                    . this.checker(v?, ent+1)
         
         if (Peep.array_values_inline && _type = "array")
             return str mid "]"

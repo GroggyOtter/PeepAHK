@@ -112,6 +112,7 @@
 class Peep {
     #Requires AutoHotkey 2.0.12+
     static version := '1.2'
+    
     ; ====================================
     ; User settings
     ; ====================================
@@ -208,13 +209,13 @@ class Peep {
     static disable_gui_escape := 0
     /** @prop {Integer} display_with_gui  
      * If set to a positive number, Peep's custom GUI is used to display information.  
-     * If set to a negative number, .  
-     * If set to zero, strings do not have any additional quotes put around them.  
+     * If set to a negative number, the standard MsgBox() is used.  
+     * If set to zero, nothing is displayed. A Peep object is still returned for text retrieval. 
      * Default is: 1
      */
     static display_with_gui := 1
     /** @prop {String} default_gui_btn  
-     * Sets the button that starts with focus on GUI display.  
+     * Sets the default button to focus on GUI display.  
      * This is also the button that will be activated when the Edit box has focus and enter is pressed.  
      * - `continue` or `resume` = Closes the GUI and unpauses if script is paused state.  
      * - `reload` = Reloads the current running script. Useful when testing quick changes to a script.  
@@ -289,7 +290,7 @@ class Peep {
     
     /**
      * @description Retrieves the generated text.
-     * @type {String}
+     * @return {String}
      * @example
      * #Include Peep.v2.ahk
      * arr := [1,2,3]
@@ -389,6 +390,7 @@ class Peep {
     }
     
     extract(item, ind) {
+        ; Unset value checker
         if !IsSet(item)
             return Peep.unset_value
         
@@ -414,7 +416,7 @@ class Peep {
             ; COM values
             case Peep.is_com_type(item_type):
                 return 'COM: ' item_type
-            ; Skip prototypes
+            ; Prototype skipping
             case (item_type = 'Prototype'):
                 return '<PROTOTYPE>'
             ; Duplicate detection
@@ -436,7 +438,7 @@ class Peep {
         else built_in := ''
         own_props := this.add_own_props(item, item_type, ind2)
         
-        ; Core extracted data
+        ; Data extraction
         switch {
             ; Assemble array data
             case (item is Array):
@@ -460,10 +462,11 @@ class Peep {
                     if Peep.include_end_commas
                         data .= ', '
                 }
+                this.trim_end_comma(data)
                 if not_inline
                     end_cap := '`n' ind
                         . (Peep.key_value_inline ? '' : ind)
-                        . (Peep.indent_closing_tag ? ind : '')
+                        . (Peep.indent_closing_tag ? ind2 : '')
                         . ']'
                 else end_cap := ']'
             
@@ -487,7 +490,7 @@ class Peep {
                     
                     data .= '`n' ind2
                         . (Peep.key_value_inline ? '' : ind)
-                        . (Peep.indent_closing_tag ? ind : '')
+                        . (Peep.indent_closing_tag ? ind2 : '')
                         . '}'
                     if Peep.include_end_commas
                         data .= ', '
@@ -495,7 +498,7 @@ class Peep {
                 this.trim_end_comma(data)
                 end_cap := '`n'
                     . (Peep.key_value_inline ? '' : ind)
-                    . (Peep.indent_closing_tag ? ind : '')
+                    . (Peep.indent_closing_tag ? ind2 : '')
                     . '}'
                 if Peep.include_end_commas
                     data .= ', '
@@ -512,19 +515,20 @@ class Peep {
                             data .= StrReplace(this.Extract(value, ind), '`n', '`n' ind2)
                         else data .= StrReplace(this.Extract(value, ind), '`n', '`n' ind3)
                     else data .= Peep.unset_value
+                    if Peep.include_end_commas
+                        data .= ', '
                 }
-                
+                this.trim_end_comma(data)
                 end_cap := '`n'
                     . (Peep.key_value_inline ? '' : ind)
-                    . (Peep.indent_closing_tag ? ind : '')
+                    . (Peep.indent_closing_tag ? ind2 : '')
                     . (item is map ? ')' : '}')
-            
             ; The mighty catch-all
             default:
                 header := item_type '{'
                 end_cap := '`n' ind
                     . (Peep.key_value_inline ? '' : ind)
-                    . (Peep.indent_closing_tag ? ind : '')
+                    . (Peep.indent_closing_tag ? ind2 : '')
                     . '}'
         }
         
@@ -622,7 +626,7 @@ class Peep {
         happy       := 420
         
         ; Gui
-        goo := Gui('+Resize -DPIScale +MinSize400x200', 'Peep( ' A_ScriptFullPath ' )', this)
+        goo := Gui('+Resize -DPIScale +MinSize400x200', 'Peep()', this)
         goo.btn_h := bh
         goo.MarginX := goo.MarginY := m
         goo.BackColor := '0x' bg_color
@@ -655,7 +659,7 @@ class Peep {
         callback := ObjBindMethod(this, 'WM_MOUSEMOVE')
         OnMessage(WM_MOUSEMOVE, callback)
         
-        ; Window Resize Listener
+        ; Window Movement Listener
         WM_MOVE := 0x0003
         callback := ObjBindMethod(this, 'WM_MOVE')
         OnMessage(WM_MOVE, callback)

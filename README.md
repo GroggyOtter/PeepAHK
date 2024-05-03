@@ -26,6 +26,7 @@
     * [`gui_y`](#peepgui_y-integer)
 
 4. [Changelog](#changelog)
+    * [v1.3](#v13)
     * [v1.2](#v12)
     * [v1.1](#v11)
     * [v1.0](#v10)
@@ -256,6 +257,8 @@ Default value: A_ScreenHeight / 2 - (Peep.gui_h/2)
 
 ## Changelog
 ***
+### v1.3
+* Fixed a problem where gui controls weren't parsed correctly as the script assumed they'd only come from enumerating a GUI.
 
 ### v1.2
 * Complete rewrite of core logic.

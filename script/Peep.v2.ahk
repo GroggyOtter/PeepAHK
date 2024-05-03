@@ -4,7 +4,7 @@
  * @file Peep.v2.ahk
  * @author GroggyOtter
  * @date 2024/03/28
- * @version 1.2
+ * @version 1.3
  * @property {Integer} dark_mode  
  * - `true` = [Default] Use a dark colored theme.
  * - `false` = Use a light colored theme.
@@ -358,7 +358,6 @@ class Peep {
     }
     
     static is_enumerable(item) => item.HasMethod('__Enum') ? 1 : 0
-    
     reference_arr := Map()
     
     __New(items*) {
@@ -470,7 +469,7 @@ class Peep {
                         . ']'
                 else end_cap := ']'
             
-            ; Get GUI controls
+            ; Get GUI including controls
             case (item is Gui):
                 header := item_type '(' (item.Name = '' ? 'HWND:' item.hwnd : 'NAME: ' item.Name) '){'
                 for hwnd, control in item {
@@ -503,6 +502,30 @@ class Peep {
                 if Peep.include_end_commas
                     data .= ', '
             
+            ; Individual gui controls
+            case (item is Gui.Control):
+                header := item_type '{'
+                
+                data .= Peep.include_built_in ? this.add_built_in(item, 'Gui.Control', ind2) : ''
+                o := this.add_own_props(item, item_type, ind2)
+                if (o != '')
+                    data .= '`n' ind2 o
+                
+                data .= '`n' ind2
+                    . (Peep.key_value_inline ? '' : ind)
+                    . (Peep.indent_closing_tag ? ind2 : '')
+                    . '}'
+                if Peep.include_end_commas
+                    data .= ', '
+
+                end_cap := '`n'
+                    . (Peep.key_value_inline ? '' : ind)
+                    . (Peep.indent_closing_tag ? ind2 : '')
+                    . '}'
+                if Peep.include_end_commas
+                    data .= ', '
+                this.trim_end_comma(data)
+
             ; Get items from enumerable objects
             case Peep.is_enumerable(item):
                 header := item_type (item is map ? '(' : '{')

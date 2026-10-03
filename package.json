@@ -1,0 +1,16 @@
+{
+  "author": {
+    "email": "",
+    "name": "GroggyOtter",
+    "website": "https://ko-fi.com/groggyotter"
+  },
+  "bugs": {
+    "url": "https://github.com/GroggyOtter/PeepAHK/issues"
+  },
+  "description": "Easily get information from nested objects.",
+  "license": "MIT",
+  "main": "script/Peep.v2.ahk",
+  "name": "GroggyOtter/PeepAHK",
+  "repository": "GroggyOtter/PeepAHK/main",
+  "version": "v1.3.0"
+}

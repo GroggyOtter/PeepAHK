@@ -303,9 +303,9 @@ class Peep {
     ; Internal stuff
     ; ====================================
     static __New() {
-        props := Map()
-        props.CaseSense := 0
-        props.Set(
+        peeps := Map()
+        peeps.CaseSense := 0
+        peeps.Set(
             'Array',             ['Length', 'Capacity', 'Default'],
             'Buffer',            ['Ptr', 'Size'],
             'ClipboardAll',      ['Ptr', 'Size'],
@@ -336,7 +336,7 @@ class Peep {
             'MenuBar',           ['ClickCount', 'Default', 'Handle'],
             'RegExMatchInfo',    ['Pos', 'Len', 'Count', 'Mark']
         )
-        this.props := props
+        this.peeps := peeps
     }
 
     static btn_data := [
@@ -571,7 +571,7 @@ class Peep {
     trim_end_comma(str) => RTrim(str, ', ')
     
     add_built_in(item, typ, ind, is_gui_con:=0) {
-        if !Peep.props.Has(typ)
+        if !Peep.peeps.Has(typ)
             return ''
         
         ind2 := ind Peep.indent_str
@@ -581,7 +581,7 @@ class Peep {
         str := ''
         if is_gui_con
             typ := 'Gui.Control'
-        for k, prop in Peep.props[typ] {
+        for k, prop in Peep.peeps[typ] {
             if !item.HasProp(prop)
                 continue
             str .= '`n' ind prop ': '
